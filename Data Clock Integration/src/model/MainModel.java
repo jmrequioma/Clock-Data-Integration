@@ -68,14 +68,14 @@ public class MainModel {
 	}
 	
 	public void writeDate(Date date) {
+		String dateToString = "";
 		BufferedWriter bw = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		try {
-			bw = new BufferedWriter(new FileWriter("date.txt",true));
-			formatter = new SimpleDateFormat();
-			formatter.format(date);
-			bw.write("");
-			bw.append(date.toString());
+			bw = new BufferedWriter(new FileWriter("date.txt"));
+			formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			dateToString = formatter.format(date);
+			bw.write(dateToString);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
