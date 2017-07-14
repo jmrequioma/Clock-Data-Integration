@@ -1,7 +1,10 @@
 package model;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import main.OracleConnection;
 
@@ -25,5 +28,27 @@ public class MainModel {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	@SuppressWarnings("null")
+	public void retrieve() throws SQLException {
+		Statement preparedStatement = connection.createStatement();
+		ResultSet resultSet = null;
+		String query = "SELECT id, member, clock_date, clock_time, clock_index, clock_id FROM tksclock";
+		//String query = "SELECT id, entity_code FROM entprofile";
+		try {
+			//preparedStatement = connection.prepareStatement(query);
+			
+			resultSet = preparedStatement.executeQuery(query);
+			while(resultSet.next())  
+				System.out.println(resultSet.getLong(1)+"  "+resultSet.getLong(2)+"  "+ resultSet.getDate(3) + " " + resultSet.getDate(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
+				//System.out.println(resultSet.getLong(1) + " " + resultSet.getString(2));
+		} catch (Exception e) {
+			System.out.println("error");
+		} finally {
+			preparedStatement.close();
+			resultSet.close();
+		}
+		
 	}
 }
