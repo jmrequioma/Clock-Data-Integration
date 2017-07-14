@@ -1,10 +1,13 @@
 package controller;
 
 import javafx.fxml.FXML;
-
+import javafx.scene.control.Button;
+import model.MainModel;
 import javafx.event.ActionEvent;
 
 public class MainController {
+	public MainModel mainModel = new MainModel();
+	@FXML Button btn1;
 
 	// Event Listener on Button.onAction
 	@FXML
