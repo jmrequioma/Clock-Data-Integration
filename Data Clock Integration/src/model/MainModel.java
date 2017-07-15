@@ -99,10 +99,13 @@ public class MainModel {
 			//preparedStatement = connection.prepareStatement(query);
 			Date dateFromFile = readDateFromFile();
 			java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
+			java.sql.Time sqlTime = new java.sql.Time(dateFromFile.getTime());
 			System.out.println("HHHHHHHHHHHHHHH " + sqlDate);
-			String query = "SELECT id, member, clock_date, clock_time, clock_index, clock_id FROM tksclock WHERE clock_date > ?";
+			System.out.println("HHHHHHHHHHHHHHH " + sqlTime);
+			String query = "SELECT id, member, clock_date, clock_time, clock_index, clock_id FROM tksclock WHERE (clock_date > ? AND clock_time > ?)";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setDate(1, sqlDate);
+			preparedStatement.setTime(2, sqlTime);
 			resultSet = preparedStatement.executeQuery();
 			while(resultSet.next())
 				System.out.println(resultSet.getLong(1)+"  "+resultSet.getLong(2)+"  "+ resultSet.getDate(3) + " " + resultSet.getTime(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
