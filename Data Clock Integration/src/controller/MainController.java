@@ -31,9 +31,9 @@ public class MainController implements Initializable {
 		if (btn1.getText() == "Start") {
 			mainModel.retrieve();
 			try {
-				Date date = mainModel.getDateFromFile();
+				Date date = mainModel.readDateFromFile();
 				System.out.println(date);
-				mainModel.writeDate(date);
+				mainModel.writeDateToFile(date);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,7 +40,7 @@ public class MainModel {
 		}
 	}
 	
-	public Date getDateFromFile() throws IOException {
+	public Date readDateFromFile() throws IOException {
 		Date date = null;
 		String inputFile = "date.txt";
 		BufferedReader br = null;
@@ -67,7 +68,7 @@ public class MainModel {
 		return date;
 	}
 	
-	public void writeDate(Date date) {
+	public void writeDateToFile(Date date) {
 		String dateToString = "";
 		BufferedWriter bw = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -91,21 +92,25 @@ public class MainModel {
 	
 	@SuppressWarnings("null")
 	public void retrieve() throws SQLException {
-		Statement statement = connection.createStatement();
+		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		String query = "SELECT id, member, clock_date, clock_time, clock_index, clock_id FROM tksclock";
 		//String query = "SELECT id, entity_code FROM entprofile";
 		try {
 			//preparedStatement = connection.prepareStatement(query);
-			
-			resultSet = statement.executeQuery(query);
-			while(resultSet.next())  
+			Date dateFromFile = readDateFromFile();
+			java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
+			System.out.println("HHHHHHHHHHHHHHH " + sqlDate);
+			String query = "SELECT id, member, clock_date, clock_time, clock_index, clock_id FROM tksclock WHERE clock_date > ?";
+			preparedStatement = connection.prepareStatement(query);
+			preparedStatement.setDate(1, sqlDate);
+			resultSet = preparedStatement.executeQuery();
+			while(resultSet.next())
 				System.out.println(resultSet.getLong(1)+"  "+resultSet.getLong(2)+"  "+ resultSet.getDate(3) + " " + resultSet.getTime(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
 				//System.out.println(resultSet.getLong(1) + " " + resultSet.getString(2));
 		} catch (Exception e) {
 			System.out.println("error");
 		} finally {
-			statement.close();
+			preparedStatement.close();
 			resultSet.close();
 		}
 		
