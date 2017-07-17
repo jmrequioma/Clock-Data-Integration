@@ -1,2 +1,2 @@
 lastProcessed=04/02/2017 16:24:00
-pollIntervalMinutes=2
+pollIntervalMinutes=1

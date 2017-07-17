@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainController">
    <children>
-      <Button fx:id="btn1" layoutX="224.0" layoutY="207.0" mnemonicParsing="false" onAction="#btnClick" />
+      <Button fx:id="btnStart" layoutX="230.0" layoutY="207.0" mnemonicParsing="false" onAction="#btnClickStart" />
+      <Label layoutX="215.0" layoutY="261.0" text="Cut-off Time:" />
+      <Label fx:id="cutOffLbl" layoutX="189.0" layoutY="295.0" prefHeight="17.0" prefWidth="123.0" />
+      <Button layoutX="188.0" layoutY="329.0" mnemonicParsing="false" onAction="#btnRefreshClick" text="Refresh Cut-off Time" />
    </children>
 </AnchorPane>

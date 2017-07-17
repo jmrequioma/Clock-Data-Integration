@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimerTask;
 
+import controller.MainController;
 import main.OracleConnection;
 
 public class MainModel extends TimerTask {

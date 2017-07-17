@@ -3,6 +3,7 @@ package controller;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import model.MainModel;
 
 import java.io.IOException;
@@ -16,34 +17,63 @@ import javafx.event.ActionEvent;
 
 public class MainController implements Initializable {
 	public MainModel mainModel = new MainModel();
-	private boolean toggle = true;
+	private int toggle = 0;
+	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
-	@FXML Button btn1;
+	@FXML Label cutOffLbl;
+	@FXML Button btnStart;
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
-		btn1.setText("Start");
+		btnStart.setText("Start");
+		try {
+			cutOffLbl.setText(mainModel.getConfigValue(DATE_POLL));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 	
 	// Event Listener on Button.onAction
+	@SuppressWarnings("null")
 	@FXML
-	private void btnClick(ActionEvent event) throws SQLException {
+	private void btnClickStart(ActionEvent event) throws SQLException {
 		Timer timer = new Timer();
-		if (btn1.getText() == "Start" || toggle) {
-			
+		if (toggle == 0) {
+			System.out.println("1");
 			try {
 				String numOfMins = mainModel.getConfigValue(MIN_POLL);
 				timer.schedule(new MainModel(), 0, 1000 * 60 * Integer.parseInt(numOfMins));
+				toggle++;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				//e.printStackTrace();
+				e.printStackTrace();
 			}
-			btn1.setText("Stop");
+			btnStart.setText("Stop");
 		} else {
-			btn1.setText("Start");
-			toggle = false;
+			System.out.println("2");
+			toggle = 0;
+			timer.cancel();
+			timer.purge();
+			btnStart.setText("Start");
+			System.exit(0);
+		}
+	}
+	
+	@FXML
+	private void btnClickStop(ActionEvent event) {
+		
+	}
+	
+	@FXML
+	private void btnRefreshClick(ActionEvent event) {
+		try {
+			cutOffLbl.setText(mainModel.getConfigValue(DATE_POLL));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
