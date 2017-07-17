@@ -22,7 +22,8 @@ public class MainModel extends TimerTask {
 	Connection connection;
 	String dateFromFile;
 	Date date;
-	private String DESC_POLL = "pollIntervalMinutes";
+	final String DATE_POLL = "lastProcessed";
+	final String MIN_POLL = "pollIntervalMinutes";
 	public MainModel() {
 		connection = OracleConnection.Connector();
 		if (connection == null) {
@@ -43,7 +44,7 @@ public class MainModel extends TimerTask {
 		}
 	}
 	
-	public Date readDateFromFile() throws IOException {
+	private Date readDateFromFile() throws IOException {
 		Date date = null;
 		//BufferedReader br = null;
 		//String sDate1 = "31/12/1998";
@@ -64,17 +65,17 @@ public class MainModel extends TimerTask {
 		return date;
 	}
 	
-	public void writeDateToFile(Date date) {
+	private void writeDateToFile(Date date) {
 		String dateToString = "";
 		BufferedWriter bw = null;
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		try {
-			String secondLine = getConfigValue(DESC_POLL);
+			String secondLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter("date.txt"));
 			formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			dateToString = formatter.format(date);
 			bw.write("lastProcessed=" + dateToString);
-			bw.append(DESC_POLL + secondLine);
+			bw.append(MIN_POLL + secondLine);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -88,13 +89,13 @@ public class MainModel extends TimerTask {
     	}
 	}
 	
-	public void writeDateToFile(String date) {
+	private void writeDateToFile(String date) {
 		BufferedWriter bw = null;
 		try {
-			String secondLine = getConfigValue(DESC_POLL);
+			String secondLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter("date.txt"));
 			bw.write("lastProcessed=" + date + "\n");
-			bw.append(DESC_POLL + "=" + secondLine);
+			bw.append(MIN_POLL + "=" + secondLine);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -107,14 +108,14 @@ public class MainModel extends TimerTask {
 			}
     	}
 	}
-	public String formatDate(Date someDate) {
+	private String formatDate(Date someDate) {
 		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		String formattedDate = df.format(someDate);
 		return formattedDate;
 	}
 	
 	@SuppressWarnings("null")
-	public void retrieve() throws SQLException {
+	private void retrieve() throws SQLException {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		Date cutOffDate = null;
