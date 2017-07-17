@@ -1,1 +1,2 @@
-30/12/2014 00:00:00
+lastProcessed=04/02/2017 16:24:00
+pollIntervalMinutes=2
