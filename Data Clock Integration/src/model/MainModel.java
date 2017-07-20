@@ -45,6 +45,7 @@ public class MainModel extends TimerTask {
 	Connection connection;
 	String dateFromFile;
 	Date date;
+	final String IN_FILE = "date.txt";
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
 	
@@ -112,7 +113,7 @@ public class MainModel extends TimerTask {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		try {
 			String secondLine = getConfigValue(MIN_POLL);
-			bw = new BufferedWriter(new FileWriter("date.txt"));
+			bw = new BufferedWriter(new FileWriter(IN_FILE));
 			formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 			dateToString = formatter.format(date);
 			bw.write("lastProcessed=" + dateToString);
@@ -134,7 +135,7 @@ public class MainModel extends TimerTask {
 		BufferedWriter bw = null;
 		try {
 			String secondLine = getConfigValue(MIN_POLL);
-			bw = new BufferedWriter(new FileWriter("date.txt"));
+			bw = new BufferedWriter(new FileWriter(IN_FILE));
 			bw.write("lastProcessed=" + date + "\n");
 			bw.append(MIN_POLL + "=" + secondLine);
 			
@@ -164,9 +165,7 @@ public class MainModel extends TimerTask {
 		Date clockDateTime = null;
 		String employeeId = "";
 		String returnValue = "";
-		//String query = "SELECT id, entity_code FROM entprofile";
 		try {
-			//preparedStatement = connection.prepareStatement(query);
 			Date dateFromFile = readDateFromFile();
 			java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
 			java.sql.Time sqlTime = new java.sql.Time(dateFromFile.getTime());
@@ -182,11 +181,13 @@ public class MainModel extends TimerTask {
 				cutOffDate = resultSet.getDate(4);
 				cutOffTime = resultSet.getTime(4);
 				employeeId = resultSet.getString(2);
+				/*
 				clockDateTime = dateTime(cutOffDate, cutOffTime);
 				returnValue = clockEntryData(employeeId, clockDateTime);
 				if (returnValue.length() > 0) {
 					System.out.println(returnValue);
 				}
+				*/
 			}
 			Date date = readDateFromFile();
 			System.out.println(date);
@@ -221,7 +222,7 @@ public class MainModel extends TimerTask {
 		String keyValue = "";
 		String keyNameModified = keyName.toLowerCase();
 		String line;
-		BufferedReader in = new BufferedReader(new FileReader("date.txt"));
+		BufferedReader in = new BufferedReader(new FileReader(IN_FILE));
 		try {
 			while ((line = in.readLine().toLowerCase()) != null) {
 				int ind = line.indexOf(keyNameModified + "=");
