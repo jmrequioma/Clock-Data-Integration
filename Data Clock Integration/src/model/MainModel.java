@@ -20,7 +20,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,7 +37,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import controller.MainController;
 import main.OracleConnection;
 
 public class MainModel extends TimerTask {
@@ -157,7 +155,7 @@ public class MainModel extends TimerTask {
 	}
 	
 	@SuppressWarnings("null")
-	private void retrieve() throws SQLException {
+	private void retrieve() throws SQLException, IOException {
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		Date cutOffDate = null;
@@ -196,6 +194,7 @@ public class MainModel extends TimerTask {
 			String formattedDate = formatDate(cutOffDate);
 			System.out.println("formattedddddddd: " + formattedDate);
 			writeDateToFile(formattedDate + " " + cutOffTime.toString());
+			
 			System.out.println("Threads: " + java.lang.Thread.activeCount());
 		} catch (NullPointerException npe) {
 				System.out.println("no data retrieved");
@@ -213,6 +212,9 @@ public class MainModel extends TimerTask {
 		try {
 			retrieve();
 		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

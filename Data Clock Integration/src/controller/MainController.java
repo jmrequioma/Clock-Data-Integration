@@ -9,7 +9,6 @@ import model.MainModel;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.Timer;
 
@@ -17,6 +16,7 @@ import javafx.event.ActionEvent;
 
 public class MainController implements Initializable {
 	public MainModel mainModel = new MainModel();
+	Timer timer;
 	private int toggle = 0;
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
@@ -40,8 +40,8 @@ public class MainController implements Initializable {
 	@SuppressWarnings("null")
 	@FXML
 	private void btnClickStart(ActionEvent event) throws SQLException {
-		Timer timer = new Timer();
 		if (toggle == 0) {
+			timer = new Timer();
 			System.out.println("1");
 			try {
 				String numOfMins = mainModel.getConfigValue(MIN_POLL);
@@ -58,7 +58,7 @@ public class MainController implements Initializable {
 			timer.cancel();
 			timer.purge();
 			btnStart.setText("Start");
-			System.exit(0);
+			//System.exit(0);
 		}
 	}
 	
@@ -75,5 +75,8 @@ public class MainController implements Initializable {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	public void setCutOffLbl(String lbl) {
+		cutOffLbl.setText(lbl);
 	}
 }
