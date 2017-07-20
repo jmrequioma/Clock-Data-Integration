@@ -42,6 +42,9 @@ public class OnepeopleWSClient extends TimerTask {
 	String dateFromFile;
 	Date date;
 	final String IN_FILE = "onepeopleWSServer.ini";
+	final String CONN_STR = "dsConnectString";
+	final String UNAME = "username";
+	final String PWORD = "password";
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
 	
@@ -103,37 +106,19 @@ public class OnepeopleWSClient extends TimerTask {
 		return date;
 	}
 	
-	private void writeDateToFile(Date date) {
-		String dateToString = "";
-		BufferedWriter bw = null;
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		try {
-			String secondLine = getConfigValue(MIN_POLL);
-			bw = new BufferedWriter(new FileWriter(IN_FILE));
-			formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			dateToString = formatter.format(date);
-			bw.write("lastProcessed=" + dateToString);
-			bw.append(MIN_POLL + secondLine);
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-    		try {
-    			if(bw != null) bw.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-    	}
-	}
-	
 	private void writeDateToFile(String date) {
 		BufferedWriter bw = null;
 		try {
-			String secondLine = getConfigValue(MIN_POLL);
+			String connLine = getConfigValue(CONN_STR);
+			String unameLine = getConfigValue(UNAME);
+			String pwordLine = getConfigValue(PWORD);
+			String minLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter(IN_FILE));
-			bw.write("lastProcessed=" + date + "\n");
-			bw.append(MIN_POLL + "=" + secondLine);
+			bw.write(CONN_STR + "=" + connLine + "\n");
+			bw.append(UNAME + "=" + unameLine + "\n");
+			bw.append(PWORD + "=" + pwordLine + "\n");
+			bw.append(DATE_POLL + "=" + date + "\n");
+			bw.append(MIN_POLL + "=" + minLine);
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -220,11 +205,11 @@ public class OnepeopleWSClient extends TimerTask {
 	
 	public String getConfigValue(String keyName) throws IOException {
 		String keyValue = "";
-		String keyNameModified = keyName.toLowerCase();
+		String keyNameModified = keyName;
 		String line;
 		BufferedReader in = new BufferedReader(new FileReader(IN_FILE));
 		try {
-			while ((line = in.readLine().toLowerCase()) != null) {
+			while ((line = in.readLine()) != null) {
 				int ind = line.indexOf(keyNameModified + "=");
 				if (ind >= 0) {
 					keyValue = line.substring((ind+keyNameModified+"=").length() - 1, line.length()).trim();
