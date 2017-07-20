@@ -11,7 +11,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			Parent root = FXMLLoader.load(getClass().getResource("/view/Main.fxml"));
+			Parent root = FXMLLoader.load(getClass().getResource("/view/OnePeopleWSServer.fxml"));
 			Scene scene = new Scene(root);
 			scene.getStylesheets().add(getClass().getResource("/view/theme/default.css").toExternalForm());
 			primaryStage.setResizable(false);

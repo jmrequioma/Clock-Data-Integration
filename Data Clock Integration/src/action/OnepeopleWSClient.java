@@ -89,7 +89,7 @@ public class OnepeopleWSClient extends TimerTask {
 		Date date = null;
 		//BufferedReader br = null;
 		//String sDate1 = "31/12/1998";
-		SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		
 		try {
 			String inputDate;
@@ -132,7 +132,7 @@ public class OnepeopleWSClient extends TimerTask {
     	}
 	}
 	private String formatDate(Date someDate) {
-		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		DateFormat df = new SimpleDateFormat("yyyy/MM/dd");
 		String formattedDate = df.format(someDate);
 		return formattedDate;
 	}
