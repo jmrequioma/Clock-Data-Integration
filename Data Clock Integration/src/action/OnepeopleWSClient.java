@@ -37,11 +37,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class MainModel extends TimerTask {
+public class OnepeopleWSClient extends TimerTask {
 	Connection connection;
 	String dateFromFile;
 	Date date;
-	final String IN_FILE = "date.txt";
+	final String IN_FILE = "onepeopleWSServer.ini";
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
 	
@@ -62,7 +62,7 @@ public class MainModel extends TimerTask {
 	private String wsURLClock = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/EclockRemote?wsdl");
 	private String wsURLRoot = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/");
 	
-	public MainModel() {
+	public OnepeopleWSClient() {
 		connection = OracleConnection.Connector();
 		if (connection == null) {
 			System.out.println("connection not successful");
@@ -245,7 +245,7 @@ public class MainModel extends TimerTask {
     	}
     		
     	if(!enableCertValidate) {
-    		MainModel.disableCertificateValidation();
+    		OnepeopleWSClient.disableCertificateValidation();
     	}
     	
 	    String responseString = "";

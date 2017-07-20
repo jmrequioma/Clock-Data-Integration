@@ -13,8 +13,8 @@ import java.util.Timer;
 
 import javafx.event.ActionEvent;
 
-public class MainController implements Initializable {
-	public MainModel mainModel = new MainModel();
+public class OnepeopleWSServer implements Initializable {
+	public OnepeopleWSClient mainModel = new OnepeopleWSClient();
 	Timer timer;
 	private int toggle = 0;
 	final String DATE_POLL = "lastProcessed";
@@ -44,7 +44,7 @@ public class MainController implements Initializable {
 			System.out.println("1");
 			try {
 				String numOfMins = mainModel.getConfigValue(MIN_POLL);
-				timer.schedule(new MainModel(), 0, 1000 * 60 * Integer.parseInt(numOfMins));
+				timer.schedule(new OnepeopleWSClient(), 0, 1000 * 60 * Integer.parseInt(numOfMins));
 				toggle++;
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
