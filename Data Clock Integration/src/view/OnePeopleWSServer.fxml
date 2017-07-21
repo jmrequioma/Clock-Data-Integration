@@ -7,19 +7,19 @@
 
 <AnchorPane prefHeight="500.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="action.OnepeopleWSServer">
    <children>
-      <Button fx:id="btnStart" layoutX="211.0" layoutY="114.0" mnemonicParsing="false" onAction="#btnClickStart" prefHeight="44.0" prefWidth="79.0">
+      <Button fx:id="btnStart" layoutX="196.0" layoutY="115.0" mnemonicParsing="false" onAction="#btnClickStart" prefHeight="54.0" prefWidth="111.0">
          <font>
-            <Font size="20.0" />
+            <Font size="25.0" />
          </font></Button>
-      <Label layoutX="192.0" layoutY="194.0" text="Cut-off Time:">
+      <Label layoutX="80.0" layoutY="194.0" text="Date/Time of last clock data processed">
          <font>
             <Font size="20.0" />
          </font></Label>
-      <Label fx:id="cutOffLbl" contentDisplay="CENTER" layoutX="158.0" layoutY="235.0" prefHeight="30.0" prefWidth="282.0">
+      <Label fx:id="cutOffLbl" alignment="CENTER" contentDisplay="CENTER" layoutX="110.0" layoutY="235.0" prefHeight="30.0" prefWidth="282.0" textAlignment="CENTER">
          <font>
             <Font size="20.0" />
          </font></Label>
-      <Button layoutX="145.0" layoutY="290.0" mnemonicParsing="false" onAction="#btnRefreshClick" text="Refresh Cut-off Time">
+      <Button layoutX="155.0" layoutY="290.0" mnemonicParsing="false" onAction="#btnRefreshClick" text="Refresh Date/Time">
          <font>
             <Font size="20.0" />
          </font></Button>

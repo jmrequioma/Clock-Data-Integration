@@ -42,9 +42,12 @@ public class OnepeopleWSClient extends TimerTask {
 	String dateFromFile;
 	Date date;
 	final String IN_FILE = "onepeopleWSServer.ini";
-	final String CONN_STR = "dsConnectString";
-	final String UNAME = "username";
-	final String PWORD = "password";
+	final String CONN_STR = "dbConnectString";
+	final String DB_UNAME = "dbUsername";
+	final String DB_PWORD = "dbPassword";
+	final String HOST = "wsHost";
+	final String ACC_CODE = "wsAccountCode";
+	final String ACC_PASS = "wsAccountPass";
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
 	
@@ -52,14 +55,14 @@ public class OnepeopleWSClient extends TimerTask {
 	private final String HTTPS_PROTOCOL = "https";
     private final String HTTP_PROTOCOL = "http";
     
-    private String accountCode = "110001-1P"; // DEMO/TEST: XX0002-1R
+    //private String accountCode = "110001-1P"; // DEMO/TEST: XX0002-1R
     private String accountPass = "OPWS13072009"; // DEMO/TEST: OPWSXX0002
     private boolean enableCertValidate = false;
     private String http_port = "80";
     private String https_port = "443";
 
     
-	private final static String HOST_NAME = "0900003-PC";
+	private static String HOST_NAME = "0900003-PC";
 	private String clockId = "01";
 	private String clockIndex = "DUAL";
 	private String wsURLClock = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/EclockRemote?wsdl");
@@ -73,6 +76,16 @@ public class OnepeopleWSClient extends TimerTask {
 		} else {
 			System.out.println("connection IS successful");
 		}
+		try {
+			this.HOST_NAME = getConfigValue(HOST);
+			http_port = "80";
+			https_port = "443";
+			wsURLClock = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/EclockRemote?wsdl");
+			wsURLRoot = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public boolean isDbConnected() {
@@ -85,10 +98,8 @@ public class OnepeopleWSClient extends TimerTask {
 		}
 	}
 	
-	private Date readDateFromFile() throws IOException {
+	private Date readDataFromFile() throws IOException {
 		Date date = null;
-		//BufferedReader br = null;
-		//String sDate1 = "31/12/1998";
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		
 		try {
@@ -106,17 +117,23 @@ public class OnepeopleWSClient extends TimerTask {
 		return date;
 	}
 	
-	private void writeDateToFile(String date) {
+	private void writeDataToFile(String date) {
 		BufferedWriter bw = null;
 		try {
 			String connLine = getConfigValue(CONN_STR);
-			String unameLine = getConfigValue(UNAME);
-			String pwordLine = getConfigValue(PWORD);
+			String unameLine = getConfigValue(DB_UNAME);
+			String pwordLine = getConfigValue(DB_PWORD);
+			String hostLine = getConfigValue(HOST);
+			String accCodeLine = getConfigValue(ACC_CODE);
+			String accPassLine = getConfigValue(ACC_PASS);
 			String minLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter(IN_FILE));
 			bw.write(CONN_STR + "=" + connLine + "\n");
-			bw.append(UNAME + "=" + unameLine + "\n");
-			bw.append(PWORD + "=" + pwordLine + "\n");
+			bw.append(DB_UNAME + "=" + unameLine + "\n");
+			bw.append(DB_PWORD + "=" + pwordLine + "\n");
+			bw.append(HOST + "=" + hostLine + "\n");
+			bw.append(ACC_CODE + "=" + accCodeLine + "\n");
+			bw.append(ACC_PASS + "=" + accPassLine + "\n");
 			bw.append(DATE_POLL + "=" + date + "\n");
 			bw.append(MIN_POLL + "=" + minLine);
 			
@@ -147,12 +164,12 @@ public class OnepeopleWSClient extends TimerTask {
 		String employeeId = "";
 		String returnValue = "";
 		try {
-			Date dateFromFile = readDateFromFile();
+			Date dateFromFile = readDataFromFile();
 			java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
 			java.sql.Time sqlTime = new java.sql.Time(dateFromFile.getTime());
 			System.out.println("HHHHHHHHHHHHHHH " + sqlDate);
 			System.out.println("HHHHHHHHHHHHHHH " + sqlTime);
-			String query = "SELECT clk.id, mem.member_id, clk.clock_date, clk.clock_time, clk.clock_index, clk.clock_id FROM tksclock clk, orgmember mem WHERE (clk.clock_date > ? AND clk.clock_time > ?) AND clk.member = mem.id ORDER BY clk.clock_time";
+			String query = "SELECT clk.id, clk.member, clk.clock_date, clk.clock_time, clk.clock_index, clk.clock_id FROM xvw_tksclock clk WHERE (clk.clock_date > ? AND clk.clock_time > ?) ORDER BY clk.clock_time";
 			preparedStatement = connection.prepareStatement(query);
 			preparedStatement.setDate(1, sqlDate);
 			preparedStatement.setTime(2, sqlTime);
@@ -162,21 +179,19 @@ public class OnepeopleWSClient extends TimerTask {
 				cutOffDate = resultSet.getDate(4);
 				cutOffTime = resultSet.getTime(4);
 				employeeId = resultSet.getString(2);
-				/*
 				clockDateTime = dateTime(cutOffDate, cutOffTime);
 				returnValue = clockEntryData(employeeId, clockDateTime);
 				if (returnValue.length() > 0) {
 					System.out.println(returnValue);
 				}
-				*/
 			}
-			Date date = readDateFromFile();
+			Date date = readDataFromFile();
 			System.out.println(date);
 			System.out.println("cutofffffffffff " + cutOffDate);
 			System.out.println("cutofffffffffff " + cutOffTime);
 			String formattedDate = formatDate(cutOffDate);
 			System.out.println("formattedddddddd: " + formattedDate);
-			writeDateToFile(formattedDate + " " + cutOffTime.toString());
+			writeDataToFile(formattedDate + " " + cutOffTime.toString());
 			
 			System.out.println("Threads: " + java.lang.Thread.activeCount());
 		} catch (NullPointerException npe) {
@@ -254,7 +269,7 @@ public class OnepeopleWSClient extends TimerTask {
 	            "   <soapenv:Body>\n" +
 	            "      <web:clockEntryData>\n" +
 	            "         <!--Optional:-->\n" +
-	            "         <web:acctCode>" + accountCode + "</web:acctCode>\n" +
+	            "         <web:acctCode>" + getConfigValue(ACC_CODE) + "</web:acctCode>\n" +
 	            "         <web:keyPass>" + accountPass + "</web:keyPass>\n" +
 	            "         <web:memberId>" + memberId + "</web:memberId>\n" +
 	            "		  <web:clockIndex>" + clockIndex + "</web:clockIndex>\n" +
