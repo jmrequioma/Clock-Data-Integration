@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.*;
 
-public class OracleConnection {
+public class DbConnection {
 	final static String IN_FILE = "onepeopleWSServer.ini";
 	final static String CONN_STR = "dbConnectString";
 	final static String DB_UNAME = "dbUsername";
@@ -16,7 +16,7 @@ public class OracleConnection {
 			String uname = getConfigValue(DB_UNAME);
 			String pword = getConfigValue(DB_PWORD);
 			Class.forName("oracle.jdbc.driver.OracleDriver");
-			Connection conn = DriverManager.getConnection("jdbc:oracle:thin:" + connString, uname, pword);
+			Connection conn = DriverManager.getConnection(connString, uname, pword);
 			//Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","ONEADM","OPDBdefADMPWD");
 			return conn;
 		} catch (Exception e) {

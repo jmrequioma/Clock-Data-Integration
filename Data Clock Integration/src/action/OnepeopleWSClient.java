@@ -69,7 +69,7 @@ public class OnepeopleWSClient extends TimerTask {
 	private String wsURLRoot = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/");
 	
 	public OnepeopleWSClient() {
-		connection = OracleConnection.Connector();
+		connection = DbConnection.Connector();
 		if (connection == null) {
 			System.out.println("connection not successful");
 			System.exit(1);
