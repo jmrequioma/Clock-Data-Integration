@@ -43,6 +43,7 @@ public class OnepeopleWSClient extends TimerTask {
 	Date date;
 	final String IN_FILE = "onepeopleWSServer.ini";
 	final String CONN_STR = "dbConnectString";
+	final String DB_DRIVER = "dbDriverClass";
 	final String DB_UNAME = "dbUsername";
 	final String DB_PWORD = "dbPassword";
 	final String HOST = "wsHost";
@@ -121,6 +122,7 @@ public class OnepeopleWSClient extends TimerTask {
 		BufferedWriter bw = null;
 		try {
 			String connLine = getConfigValue(CONN_STR);
+			String driverLine = getConfigValue(DB_DRIVER);
 			String unameLine = getConfigValue(DB_UNAME);
 			String pwordLine = getConfigValue(DB_PWORD);
 			String hostLine = getConfigValue(HOST);
@@ -129,6 +131,7 @@ public class OnepeopleWSClient extends TimerTask {
 			String minLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter(IN_FILE));
 			bw.write(CONN_STR + "=" + connLine + "\n");
+			bw.append(DB_DRIVER + "=" + driverLine + "\n");
 			bw.append(DB_UNAME + "=" + unameLine + "\n");
 			bw.append(DB_PWORD + "=" + pwordLine + "\n");
 			bw.append(HOST + "=" + hostLine + "\n");

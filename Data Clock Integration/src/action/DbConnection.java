@@ -8,14 +8,16 @@ import java.sql.*;
 public class DbConnection {
 	final static String IN_FILE = "onepeopleWSServer.ini";
 	final static String CONN_STR = "dbConnectString";
+	final static String DB_DRIVER = "dbDriverClass";
 	final static String DB_UNAME = "dbUsername";
 	final static String DB_PWORD = "dbPassword";
 	public static Connection Connector() {
 		try {
 			String connString = getConfigValue(CONN_STR);
+			String driver = getConfigValue(DB_DRIVER);
 			String uname = getConfigValue(DB_UNAME);
 			String pword = getConfigValue(DB_PWORD);
-			Class.forName("oracle.jdbc.driver.OracleDriver");
+			Class.forName(driver);
 			Connection conn = DriverManager.getConnection(connString, uname, pword);
 			//Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","ONEADM","OPDBdefADMPWD");
 			return conn;
