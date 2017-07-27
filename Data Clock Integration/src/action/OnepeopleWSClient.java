@@ -51,6 +51,7 @@ public class OnepeopleWSClient extends TimerTask {
 	final String ACC_PASS = "wsAccountPass";
 	final String DATE_POLL = "lastProcessed";
 	final String MIN_POLL = "pollIntervalMinutes";
+	final String DUM_DATEVAL = "0000/00/00 00:00:00";
 	
 	private final String CLOCK_DEFAULT = "RFID";
 	private final String HTTPS_PROTOCOL = "https";
@@ -101,19 +102,23 @@ public class OnepeopleWSClient extends TimerTask {
 	
 	private Date readDataFromFile() throws IOException {
 		Date date = null;
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		
 		
 		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 			String inputDate;
 			//br = new BufferedReader(new FileReader(inputFile));
 			inputDate = getConfigValue("lastProcessed");
-			if (inputDate != "") {
+			if (!(inputDate.equals(""))) {
 				date = formatter.parse(inputDate);
 				System.out.println("date here!!!!!" + date);
+			} else {
+				date = formatter.parse(DUM_DATEVAL);   // dummy date value
 			}
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			date = null;
 		}
 		return date;
 	}
@@ -159,6 +164,7 @@ public class OnepeopleWSClient extends TimerTask {
 	
 	@SuppressWarnings("null")
 	private void retrieve() throws SQLException, IOException {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
 		Date cutOffDate = null;
@@ -168,35 +174,38 @@ public class OnepeopleWSClient extends TimerTask {
 		String returnValue = "";
 		try {
 			Date dateFromFile = readDataFromFile();
-			java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
-			java.sql.Time sqlTime = new java.sql.Time(dateFromFile.getTime());
-			System.out.println("HHHHHHHHHHHHHHH " + sqlDate);
-			System.out.println("HHHHHHHHHHHHHHH " + sqlTime);
-			String query = "SELECT clk.id, clk.member, clk.clock_date, clk.clock_time, clk.clock_index, clk.clock_id FROM xvw_tksclock clk WHERE (clk.clock_date > ? AND clk.clock_time > ?) ORDER BY clk.clock_time";
-			preparedStatement = connection.prepareStatement(query);
-			preparedStatement.setDate(1, sqlDate);
-			preparedStatement.setTime(2, sqlTime);
-			resultSet = preparedStatement.executeQuery();
-			while(resultSet.next()) {
-				System.out.println(resultSet.getLong(1)+"  "+resultSet.getString(2)+"  "+ resultSet.getDate(3) + " " + resultSet.getTime(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
-				cutOffDate = resultSet.getDate(4);
-				cutOffTime = resultSet.getTime(4);
-				employeeId = resultSet.getString(2);
-				clockDateTime = dateTime(cutOffDate, cutOffTime);
-				returnValue = clockEntryData(employeeId, clockDateTime);
-				if (returnValue.length() > 0) {
-					System.out.println(returnValue);
+			if (dateFromFile != (formatter.parse(DUM_DATEVAL))) {
+				java.sql.Date sqlDate= new java.sql.Date(dateFromFile.getTime());
+				java.sql.Time sqlTime = new java.sql.Time(dateFromFile.getTime());
+				System.out.println("sqlDate: " + sqlDate);
+				System.out.println("sqlTime: " + sqlTime);
+				String query = "SELECT clk.id, clk.member, clk.clock_date, clk.clock_time, clk.clock_index, clk.clock_id FROM xvw_tksclock clk WHERE (clk.clock_date > ? AND clk.clock_time > ?) ORDER BY clk.clock_time";
+				preparedStatement = connection.prepareStatement(query);
+				preparedStatement.setDate(1, sqlDate);
+				preparedStatement.setTime(2, sqlTime);
+				resultSet = preparedStatement.executeQuery();
+				while(resultSet.next()) {
+					System.out.println(resultSet.getLong(1)+"  "+resultSet.getString(2)+"  "+ resultSet.getDate(3) + " " + resultSet.getTime(4) + " " + resultSet.getString(5) + " " + resultSet.getString(6));
+					cutOffDate = resultSet.getDate(4);
+					cutOffTime = resultSet.getTime(4);
+					employeeId = resultSet.getString(2);
+					clockDateTime = dateTime(cutOffDate, cutOffTime);
+					returnValue = clockEntryData(employeeId, clockDateTime);
+					if (returnValue.length() > 0) {
+						System.out.println(returnValue);
+					}
 				}
+				Date date = readDataFromFile();
+				System.out.println(date);
+				System.out.println("cutofffffffffff " + cutOffDate);
+				System.out.println("cutofffffffffff " + cutOffTime);
+				String formattedDate = formatDate(cutOffDate);
+				System.out.println("formattedddddddd: " + formattedDate);
+				if (formattedDate != null || cutOffTime != null || dateFromFile != (formatter.parse(DUM_DATEVAL))) {
+					writeDataToFile(formattedDate + " " + cutOffTime.toString());
+				}
+				System.out.println("Threads: " + java.lang.Thread.activeCount());
 			}
-			Date date = readDataFromFile();
-			System.out.println(date);
-			System.out.println("cutofffffffffff " + cutOffDate);
-			System.out.println("cutofffffffffff " + cutOffTime);
-			String formattedDate = formatDate(cutOffDate);
-			System.out.println("formattedddddddd: " + formattedDate);
-			writeDataToFile(formattedDate + " " + cutOffTime.toString());
-			
-			System.out.println("Threads: " + java.lang.Thread.activeCount());
 		} catch (NullPointerException npe) {
 				System.out.println("no data retrieved");
 		} catch (Exception e) {
