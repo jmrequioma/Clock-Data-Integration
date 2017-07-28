@@ -16,6 +16,9 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -27,8 +30,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimerTask;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.text.Document;
+import javax.xml.crypto.Data;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -36,6 +47,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.util.Base64;
 
 public class OnepeopleWSClient extends TimerTask {
 	Connection connection;
@@ -53,17 +66,20 @@ public class OnepeopleWSClient extends TimerTask {
 	final String MIN_POLL = "pollIntervalMinutes";
 	final String DUM_DATEVAL = "0000/00/00 00:00:00";
 	
+	String origPass = "";
 	private final String CLOCK_DEFAULT = "RFID";
 	private final String HTTPS_PROTOCOL = "https";
     private final String HTTP_PROTOCOL = "http";
     
     //private String accountCode = "110001-1P"; // DEMO/TEST: XX0002-1R
-    private String accountPass = "OPWS13072009"; // DEMO/TEST: OPWSXX0002
+    //private String accountPass = "OPWS13072009"; // DEMO/TEST: OPWSXX0002
     private boolean enableCertValidate = false;
     private String http_port = "80";
     private String https_port = "443";
 
-    
+    private static final String ALGO = "AES";
+    private byte[] keyValue;
+    Key aesKey; 
 	private static String HOST_NAME = "0900003-PC";
 	private String clockId = "01";
 	private String clockIndex = "DUAL";
@@ -80,6 +96,7 @@ public class OnepeopleWSClient extends TimerTask {
 		}
 		try {
 			this.HOST_NAME = getConfigValue(HOST);
+			origPass = getConfigValue(ACC_PASS);
 			http_port = "80";
 			https_port = "443";
 			wsURLClock = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/EclockRemote?wsdl");
@@ -112,6 +129,9 @@ public class OnepeopleWSClient extends TimerTask {
 			if (!(inputDate.equals(""))) {
 				date = formatter.parse(inputDate);
 				System.out.println("date here!!!!!" + date);
+				System.out.println("password: " + getConfigValue(ACC_PASS));
+				origPass = getConfigValue(ACC_PASS);
+				System.out.println(origPass);
 			} else {
 				date = formatter.parse(DUM_DATEVAL);   // dummy date value
 			}
@@ -123,7 +143,7 @@ public class OnepeopleWSClient extends TimerTask {
 		return date;
 	}
 	
-	private void writeDataToFile(String date) {
+	private void writeDataToFile(String date) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
 		BufferedWriter bw = null;
 		try {
 			String connLine = getConfigValue(CONN_STR);
@@ -133,6 +153,7 @@ public class OnepeopleWSClient extends TimerTask {
 			String hostLine = getConfigValue(HOST);
 			String accCodeLine = getConfigValue(ACC_CODE);
 			String accPassLine = getConfigValue(ACC_PASS);
+			System.out.println("encrypted test: " + accPassLine);
 			String minLine = getConfigValue(MIN_POLL);
 			bw = new BufferedWriter(new FileWriter(IN_FILE));
 			bw.write(CONN_STR + "=" + connLine + "\n");
@@ -163,7 +184,7 @@ public class OnepeopleWSClient extends TimerTask {
 	}
 	
 	@SuppressWarnings("null")
-	private void retrieve() throws SQLException, IOException {
+	private void retrieve() throws Exception {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
@@ -195,6 +216,11 @@ public class OnepeopleWSClient extends TimerTask {
 						System.out.println(returnValue);
 					}
 				}
+				String secret = encrypt("My name is Jerome.");
+				String secretRevealed = decrypt(secret);
+				System.out.println("secret: " + secret);
+				System.out.println("message: " + secretRevealed);
+				System.out.println("decrypted orig pass: " + decrypt(origPass));
 				Date date = readDataFromFile();
 				System.out.println(date);
 				System.out.println("last Date Processed " + cutOffDate);
@@ -209,6 +235,7 @@ public class OnepeopleWSClient extends TimerTask {
 		} catch (NullPointerException npe) {
 				System.out.println("no data retrieved");
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("error");
 		} finally {
 			preparedStatement.close();
@@ -225,6 +252,9 @@ public class OnepeopleWSClient extends TimerTask {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -264,6 +294,7 @@ public class OnepeopleWSClient extends TimerTask {
 	    String outputString = "";
 	    String clockId;
 	    String returnValue = null;
+	    String accountPass = getConfigValue(ACC_PASS);
 	    
 	    try {
 	    	if(this.clockId == null) {
@@ -282,7 +313,7 @@ public class OnepeopleWSClient extends TimerTask {
 	            "      <web:clockEntryData>\n" +
 	            "         <!--Optional:-->\n" +
 	            "         <web:acctCode>" + getConfigValue(ACC_CODE) + "</web:acctCode>\n" +
-	            "         <web:keyPass>" + accountPass + "</web:keyPass>\n" +
+	            "         <web:keyPass>" + decrypt(accountPass) + "</web:keyPass>\n" +
 	            "         <web:memberId>" + memberId + "</web:memberId>\n" +
 	            "		  <web:clockIndex>" + clockIndex + "</web:clockIndex>\n" +
 	            "         <web:clockId>" + clockId + "</web:clockId>\n" +
@@ -393,4 +424,18 @@ public class OnepeopleWSClient extends TimerTask {
         
         return result;
     }
+	
+	private String encrypt(String data) throws Exception {
+		byte[] encodedVal = data.getBytes();
+		String encoded = Base64.getEncoder().encodeToString(encodedVal);
+		System.out.println("encoded: " + encoded);
+		return encoded;
+	}
+	
+	private String decrypt(String encryptedData) throws Exception {
+		byte[] barr = Base64.getDecoder().decode(encryptedData);
+		String decoded = new String(barr);
+		System.out.println("decoded: " + decoded);
+		return decoded;
+	}
 }
