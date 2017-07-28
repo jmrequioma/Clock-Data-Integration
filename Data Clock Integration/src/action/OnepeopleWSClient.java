@@ -197,8 +197,8 @@ public class OnepeopleWSClient extends TimerTask {
 				}
 				Date date = readDataFromFile();
 				System.out.println(date);
-				System.out.println("cutofffffffffff " + cutOffDate);
-				System.out.println("cutofffffffffff " + cutOffTime);
+				System.out.println("last Date Processed " + cutOffDate);
+				System.out.println("last Time Processed " + cutOffTime);
 				String formattedDate = formatDate(cutOffDate);
 				System.out.println("formattedddddddd: " + formattedDate);
 				if (formattedDate != null || cutOffTime != null || dateFromFile != (formatter.parse(DUM_DATEVAL))) {
