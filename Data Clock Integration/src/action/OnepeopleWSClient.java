@@ -17,7 +17,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,15 +30,10 @@ import java.util.Date;
 import java.util.TimerTask;
 
 import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
 import javax.swing.text.Document;
-import javax.xml.crypto.Data;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -66,7 +60,8 @@ public class OnepeopleWSClient extends TimerTask {
 	final String MIN_POLL = "pollIntervalMinutes";
 	final String DUM_DATEVAL = "0000/00/00 00:00:00";
 	
-	String origPass = "";
+	String wsPass = "";
+	String dbPass = "";
 	private final String CLOCK_DEFAULT = "RFID";
 	private final String HTTPS_PROTOCOL = "https";
     private final String HTTP_PROTOCOL = "http";
@@ -77,9 +72,6 @@ public class OnepeopleWSClient extends TimerTask {
     private String http_port = "80";
     private String https_port = "443";
 
-    private static final String ALGO = "AES";
-    private byte[] keyValue;
-    Key aesKey; 
 	private static String HOST_NAME = "0900003-PC";
 	private String clockId = "01";
 	private String clockIndex = "DUAL";
@@ -96,7 +88,8 @@ public class OnepeopleWSClient extends TimerTask {
 		}
 		try {
 			this.HOST_NAME = getConfigValue(HOST);
-			origPass = getConfigValue(ACC_PASS);
+			wsPass = getConfigValue(ACC_PASS);
+			dbPass = getConfigValue(DB_PWORD);
 			http_port = "80";
 			https_port = "443";
 			wsURLClock = HTTPS_PROTOCOL.concat("://").concat(HOST_NAME).concat(":").concat(https_port).concat("/onepeople/services/EclockRemote?wsdl");
@@ -130,8 +123,8 @@ public class OnepeopleWSClient extends TimerTask {
 				date = formatter.parse(inputDate);
 				System.out.println("date here!!!!!" + date);
 				System.out.println("password: " + getConfigValue(ACC_PASS));
-				origPass = getConfigValue(ACC_PASS);
-				System.out.println(origPass);
+				wsPass = getConfigValue(ACC_PASS);
+				System.out.println(wsPass);
 			} else {
 				date = formatter.parse(DUM_DATEVAL);   // dummy date value
 			}
@@ -216,11 +209,6 @@ public class OnepeopleWSClient extends TimerTask {
 						System.out.println(returnValue);
 					}
 				}
-				String secret = encrypt("My name is Jerome.");
-				String secretRevealed = decrypt(secret);
-				System.out.println("secret: " + secret);
-				System.out.println("message: " + secretRevealed);
-				System.out.println("decrypted orig pass: " + decrypt(origPass));
 				Date date = readDataFromFile();
 				System.out.println(date);
 				System.out.println("last Date Processed " + cutOffDate);
@@ -428,14 +416,14 @@ public class OnepeopleWSClient extends TimerTask {
 	private String encrypt(String data) throws Exception {
 		byte[] encodedVal = data.getBytes();
 		String encoded = Base64.getEncoder().encodeToString(encodedVal);
-		System.out.println("encoded: " + encoded);
+		//System.out.println("encoded: " + encoded);
 		return encoded;
 	}
 	
 	private String decrypt(String encryptedData) throws Exception {
 		byte[] barr = Base64.getDecoder().decode(encryptedData);
 		String decoded = new String(barr);
-		System.out.println("decoded: " + decoded);
+		//System.out.println("decoded: " + decoded);
 		return decoded;
 	}
 }
